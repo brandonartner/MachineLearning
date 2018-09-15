@@ -9,6 +9,12 @@
 #Installing Keras
 # pip install --upgrade keras
 
+epochs = 25
+batch_size = 32
+image_height, image_width = 64, 64
+traing_set_size = 8000
+test_set_size = 2000
+
 #Part 1 - Building the CNN
 
 #Importing the keras libraries
@@ -22,11 +28,19 @@ from keras.layers import Dense # Used to add fully connected layers
 classifier = Sequential()
 
 #Step 1 - Convolution
-classifier.add(Conv2D(32,(3,3), data_format='channels_last', input_shape=(64,64,3), activation='relu')) # Add convolution layer with 32 3x3 feature detectors/maps and 
+classifier.add(Conv2D(32,(3,3), data_format='channels_last', input_shape=(image_height, image_width,3), activation='relu')) # Add convolution layer with 32 3x3 feature detectors/maps and 
 																										  #		a rectifier activation function.
 
 #Step 2 - Pooling
 classifier.add(MaxPooling2D()) # Add a pooling layer using a 2x2 pool size (default) 
+
+#Step1b - 2nd Convolution (Note: image size doesn't need to be specified since this layer is being given data from the previous layer, only the convolution layer needs to specify.)
+classifier.add(Conv2D(32,(3,3), data_format='channels_last', activation='relu')) # Add convolution layer with a rectifier activation function.
+
+#Step 2b - 2nd PoolingPooling
+classifier.add(MaxPooling2D()) # Add a pooling layer using a 2x2 pool size (default)
+
+# Note: When adding a third convolution layer double the number of feature detectors; double feature detectors for each additional layer.
 
 #Step 3 - Flattening
 classifier.add(Flatten()) # Add a flattening layer that converts 2D pooled feature maps into a 1D feature vector
@@ -59,22 +73,35 @@ test_datagen = ImageDataGenerator(rescale=1./255)
 # Keras automatically detects the two classes (cat/dog) based on the folder structure in the given directory
 train_generator = train_datagen.flow_from_directory(
         'dataset/training_set',
-        target_size=(64, 64),
-        batch_size=32,
+        target_size=(image_height, image_width),
+        batch_size=batch_size,
         class_mode='binary')
 
 # Setup the test set
 # Keras automatically detects the two classes (cat/dog) based on the folder structure in the given directory
 test_generator = test_datagen.flow_from_directory(
         'dataset/test_set',
-        target_size=(64, 64),
-        batch_size=32,
+        target_size=(image_height, image_width),
+        batch_size=batch_size,
         class_mode='binary')
 
-if input("Fit CNN to Data? (Y/N): ") == "Y"
+if input("Fit CNN to Data? (Y/N): ").lower() == "y":
 	classifier.fit_generator(
 		        train_generator,
-		        steps_per_epoch=8000,
-		        epochs=25,
+		        steps_per_epoch=(traing_set_size/batch_size),
+		        epochs=epochs,
 		        validation_data=test_generator,
-		        validation_steps=2000)
+		        validation_steps=(test_set_size/batch_size))
+
+#Part 3 - Save the CNN for later
+from keras.models import model_from_json
+
+if input("Save CNN ? (Y/N): ").lower() == "y":
+	# Serialize model in JSON
+	classifier_json = classifier.to_json()
+	with open("classifier.json", "w") as json_file:
+		json_file.write(classifier_json)
+
+	# Serialize weights into HDF5
+	classifier.save_weights("classifier.h5")
+	print("Saved Model!")
