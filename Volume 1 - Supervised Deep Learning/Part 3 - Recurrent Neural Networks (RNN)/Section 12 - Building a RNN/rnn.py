@@ -119,7 +119,7 @@ inputs = sc.transform(inputs) # Do not fit the test data, needs to be the same f
 X_test = []
 
 for i in range(timesteps, len(inputs)):
-	X_train.append(inputs[i - timesteps : i, 0])
+	X_test.append(inputs[i - timesteps : i, 0])
 
 X_test = np.array(X_test)
 
@@ -127,7 +127,7 @@ X_test = np.reshape(X_test, (*X_test.shape, number_of_indicators))
 
 predicted_stock_price = regressor.predict(X_test) # Make the prediction
 
-predicted_stock_price = sc.invers_transform(predicted_stock_price) # Invert the scaling done before, to get the actual values
+predicted_stock_price = sc.inverse_transform(predicted_stock_price) # Invert the scaling done before, to get the actual values
 
 # Visualize the results
 plt.plot(actual_stock_price, color='red', label='Actual Google Stock Price')
