@@ -98,7 +98,7 @@ regressor.compile(optimizer='rmsprop', loss='mean_squared_error')
 	#	test_set - 
 	#	epochs - 100 was found by the instructor experimenting
 	#	batch_size - 32 for some reason
-regressor.fit(X_train, Y_train, epochs=100, batch_size=32)
+regressor.fit(X_train, Y_train, epochs=1, batch_size=32)
 
 
 ### Part 3 - Making the predictions and visualizing the results
@@ -136,4 +136,4 @@ plt.title('Google Stock Price Prediction Comparison')
 plt.xlabel('Time')
 plt.ylabel('Stock Price')
 plt.legend()
-plt.show()
+plt.savefig('Google_Prediction.png')
